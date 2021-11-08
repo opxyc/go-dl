@@ -23,8 +23,8 @@ type Dl struct {
 }
 
 type dlTask struct {
-	c [2]int // chunk start and stop bytes
-	i int    // chunk index
+	c [2]int64 // chunk start and stop bytes
+	i int      // chunk index
 }
 
 // New returns a handle to download (a) file
@@ -90,8 +90,8 @@ func (d *Dl) Do(ch chan<- int64) error {
 	// chunks is a slice in the format [[0, 1000], [1001, 2000], ...] (example)
 	// representing the start and ending byte of each chunk that is to be downloaded
 	// by each goroutine
-	var chunks = make([][2]int, d.C)
-	chunkSize := int(d.fileSize) / d.C
+	var chunks = make([][2]int64, d.C)
+	chunkSize := d.fileSize / int64(d.C)
 
 	for i := range chunks {
 		if i == 0 {
@@ -173,7 +173,7 @@ func (d Dl) dl(dch chan *dlTask, ch chan<- int64) error {
 }
 
 // dlchunk downloads a single chunk and saves the content to a tmp file
-func (d Dl) dlchunk(ch chan<- int64, i int, c [2]int) (int64, error) {
+func (d Dl) dlchunk(ch chan<- int64, i int, c [2]int64) (int64, error) {
 	r, err := d.newRequest(http.MethodGet)
 	if err != nil {
 		return 0, err
