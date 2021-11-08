@@ -21,6 +21,11 @@ type Dl struct {
 	fileSize int
 }
 
+type dlTask struct {
+	c [2]int // chunk start and stop bytes
+	i int    // chunk index
+}
+
 func main() {
 	url := flag.String("url", "", "URL to download from")
 	path := flag.String("path", ".", "path in which the downloaded file is to be saved")
@@ -62,11 +67,6 @@ func main() {
 	fmt.Printf("\nDownload completed in %s seconds. File saved to %s\n", time.Since(startTime).String(), *path)
 }
 
-type dlTask struct {
-	c [2]int // chunk start and stop bytes
-	i int    // chunk index
-}
-
 // Do downloads the file
 func (d Dl) Do() error {
 	// make a HEAD request to get the content-length
@@ -89,6 +89,7 @@ func (d Dl) Do() error {
 	}
 
 	d.fileSize = fileSize
+	fmt.Println(fileSize)
 
 	// chunks is a slice in the format [[0, 1000], [1001, 2000], ...] (example)
 	// representing the start and ending byte of each chunk that is to be downloaded
